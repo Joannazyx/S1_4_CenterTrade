@@ -7,6 +7,7 @@ class Pending extends CI_Controller {
 		parent::__construct();
 		$this->load->model('pending_model');
 		$this->load->helper('string');
+		$this->load->model('LogManager');
 	//	$this->load->helper('form');
 	}
 
@@ -252,7 +253,8 @@ class Pending extends CI_Controller {
 			$data['CommissionType'] = 'SELL';
 			$state = $this->pending_model->add_sell_pending($data);
 		}
-		
+		//writelog
+
 		if($state == TRUE)
 			return $commissionID;
 		else 

@@ -5,16 +5,6 @@
  * @version 1.0
  */
 class TradeMatch extends CI_Controller {
-	//////////////////////////////////
-	public function jump($commmsionID){
-		
-		echo $commmsionID;
-		echo '<br>';
-		$this->match();
-		
-		
-	}
-	/////////////////////////////////
 	private $pair = NULL;  // 该成交的买卖对
 	private $m_cnt = 0;    // 匹配个数计数
 	private $m_log = NULL;  // 记录
@@ -229,7 +219,7 @@ class TradeMatch extends CI_Controller {
 				$this->up->updateacc($this->pair['debug'][$iter]['sellzj'],
 								 $this->pair['debug'][$iter]['buyzj'],
 								 $this->pair['debug'][$iter]['sellzq'],
-								 $this->pair['debug'][$iter]['buyzj'],
+								 $this->pair['debug'][$iter]['buyzq'],
 								 $this->m_cnt, 
 								 (string)$this->pair['debug'][$iter]['StockID'],
 								 date('Y-m-d H:i:s', time()),
@@ -239,7 +229,13 @@ class TradeMatch extends CI_Controller {
 								 $this->pair['debug'][$iter]['seller'],
 								 $this->pair['debug'][$iter]['buyer'],
 								 $this->pair['debug'][$iter]['isall']>>1,
-								 $this->pair['debug'][$iter]['isall']%2 
+								 $this->pair['debug'][$iter]['isall']%2,
+								 $this->pair['debug'][$iter]['sellprice'],
+								 $this->pair['debug'][$iter]['buyprice'],
+								 $this->pair['debug'][$iter]['selltime'],
+								 $this->pair['debug'][$iter]['buytime'],
+								 $this->pair['debug'][$iter]['sellremain'],
+								 $this->pair['debug'][$iter]['buyremain']
 								 );
 			}
 		}	
@@ -349,6 +345,12 @@ class TradeMatch extends CI_Controller {
 			$this->pair['debug'][$iter]['buyzj'] = $this->pair['buy'][$iterb]['StockAccountID'];
 			$this->pair['debug'][$iter]['buyzq'] = $this->pair['buy'][$iterb]['StockHolderID'];
 			$this->pair['debug'][$iter]['currency'] = $this->pair['buy'][$iterb]['Currency'];
+			$this->pair['debug'][$iter]['sellprice'] = $this->pair['sell'][$iters]['CommissionPrice'];
+			$this->pair['debug'][$iter]['buyprice'] = $this->pair['buy'][$iterb]['CommissionPrice'];
+			$this->pair['debug'][$iter]['selltime'] = $this->pair['sell'][$iters]['CommissionTime'];
+			$this->pair['debug'][$iter]['buytime'] = $this->pair['buy'][$iterb]['CommissionTime'];
+			$this->pair['debug'][$iter]['sellremain'] = $this->pair['sell'][$iters]['CommissionAmount'] - $amount;
+			$this->pair['debug'][$iter]['buyremain'] = $this->pair['buy'][$iterb]['CommissionAmount'] - $amount;
 			/*
 			|  Step6 修改数据库
 			|      ???计算单方价格

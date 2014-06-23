@@ -126,7 +126,11 @@ class CI_Loader {
 		$this->_ci_ob_level  = ob_get_level();
 		$this->_ci_library_paths = array(APPPATH, BASEPATH);
 		$this->_ci_helper_paths = array(APPPATH, BASEPATH);
-		$this->_ci_model_paths = array(APPPATH);
+		$paths=array('../SE-Group2/application','application/');
+		$paths=array_merge(array(APPPATH,),$paths);
+		$paths=array_unique($paths);
+		//$this->_ci_model_paths = array(APPPATH);
+		$this->_ci_model_paths=$paths;
 		$this->_ci_view_paths = array(APPPATH.'views/'	=> TRUE);
 
 		log_message('debug', "Loader Class Initialized");

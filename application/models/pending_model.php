@@ -19,6 +19,23 @@ class Pending_model extends CI_Model {
 		if($this->db->trans_status() === FALSE) {
 			return FALSE;
 		} else {
+		///////////////
+			//writelog
+	    $filename = dirname(__FILE__) . "/../logs/" . date("YMD") . ".log";	    	
+		$logstr = 	"Time: ".date("M-d-Y h:i:s",mktime()).
+					" State: ".'PENDING'.					
+					" Info: ".json_encode($data)."\n";
+
+		$fp = fopen($filename, "a+");
+		if (!$fp)
+		{
+			return "无法打开日志文件";
+		}
+		fwrite($fp, $logstr);
+        fclose($fp);
+
+
+		////////////////////
 			return TRUE;
 		}
 	}
@@ -35,6 +52,23 @@ class Pending_model extends CI_Model {
 		if($this->db->trans_status() === FALSE) {
 			return FALSE;
 		} else {
+			///////////////
+			//writelog
+		$filename = dirname(__FILE__) . "/../logs/" . date("YMD") . ".log";	
+		$logstr = 	"Time: ".date("M-d-Y h:i:s",mktime()).
+					" State: ".'PENDING'.					
+					" Info: ".json_encode($data)."\n";
+
+		$fp = fopen($filename, "a+");
+		if (!$fp)
+		{
+			return "无法打开日志文件";
+		}
+		fwrite($fp, $logstr);
+        fclose($fp);
+
+
+////////////////////
 			return TRUE;
 		}
 	}
@@ -60,6 +94,7 @@ class Pending_model extends CI_Model {
 	{
 		$this->db->trans_start();
 		$query = $this->db->get_where('pending_buy_table', array('CommissionID' => $commissionID));
+
 		foreach ($query->result_array() as $row) {
 			$this->db->insert('withdraw_request_table',$row);
 		}
@@ -69,6 +104,23 @@ class Pending_model extends CI_Model {
 		if($this->db->trans_status() === FALSE) {
 			return FALSE;
 		} else {
+///////////////
+		//writelog
+			$filename = dirname(__FILE__) . "/../logs/" . date("YMD") . ".log";	    	
+		$logstr = 	"Time: ".date("M-d-Y h:i:s",mktime()).
+					" State: ".'WITHDRAW'.					
+					" Info: ".json_encode($query->result_array())."\n";
+
+			$fp = fopen($filename, "a+");
+			if (!$fp)
+			{
+				return "无法打开日志文件";
+			}
+			fwrite($fp, $logstr);
+		        fclose($fp);
+	
+	
+////////////////////			
 			return TRUE;
 		}
 	}
@@ -89,6 +141,23 @@ class Pending_model extends CI_Model {
 		if($this->db->trans_status() === FALSE) {
 			return FALSE;
 		} else {
+///////////////
+			//writelog
+	    $filename = dirname(__FILE__) . "/../logs/" . date("YMD") . ".log";	    	
+		$logstr = 	"Time: ".date("M-d-Y h:i:s",mktime()).
+					" State: ".'WITHDRAW'.					
+					" Info: ".json_encode($query->result_array())."\n";
+
+		$fp = fopen($filename, "a+");
+		if (!$fp)
+		{
+			return "无法打开日志文件";
+		}
+		fwrite($fp, $logstr);
+        fclose($fp);
+
+
+////////////////////	
 			return TRUE;
 		}
 	}
@@ -109,6 +178,33 @@ class Pending_model extends CI_Model {
 		if($this->db->trans_status() === FALSE) {
 			return FALSE;
 		} else {
+///////////////
+		//writelog
+			$logstr = '';
+			$query = $this->db->get_where('pending_sell_table', array('StockID' => $stockID));
+			foreach($query->result_array() as $row) {
+				$logstr = $logstr."Time: ".date("M-d-Y h:i:s",mktime()).
+						" State: ".'SUSPEND'.					
+						" Info: ".json_encode($row)."\n";
+			}	
+			$query = $this->db->get_where('pending_buy_table', array('StockID' => $stockID));
+			foreach($query->result_array() as $row) {
+				$logstr = $logstr."Time: ".date("M-d-Y h:i:s",mktime()).
+						" State: ".'SUSPEND'.					
+						" Info: ".json_encode($row)."\n";
+			}	
+			
+			$filename = dirname(__FILE__) . "/../logs/" . date("YMD") . ".log";	    	
+			
+			$fp = fopen($filename, "a+");
+			if (!$fp)
+			{
+				return "无法打开日志文件";
+			}
+			fwrite($fp, $logstr);
+		        fclose($fp);
+////////////////////			
+
 			return TRUE;
 		}
 	}
@@ -129,6 +225,32 @@ class Pending_model extends CI_Model {
 		if($this->db->trans_status() === FALSE) {
 			return FALSE;
 		} else {
+///////////////
+		//writelog
+			$logstr = '';
+			$query = $this->db->get_where('pending_sell_table', array('StockID' => $stockID));
+			foreach($query->result_array() as $row) {
+				$logstr = $logstr."Time: ".date("M-d-Y h:i:s",mktime()).
+						" State: ".'UNSUSPEND'.					
+						" Info: ".json_encode($row)."\n";
+			}	
+			$query = $this->db->get_where('pending_buy_table', array('StockID' => $stockID));
+			foreach($query->result_array() as $row) {
+				$logstr = $logstr."Time: ".date("M-d-Y h:i:s",mktime()).
+						" State: ".'UNSUSPEND'.					
+						" Info: ".json_encode($row)."\n";
+			}	
+			
+			$filename = dirname(__FILE__) . "/../logs/" . date("YMD") . ".log";	    	
+			
+			$fp = fopen($filename, "a+");
+			if (!$fp)
+			{
+				return "无法打开日志文件";
+			}
+			fwrite($fp, $logstr);
+		        fclose($fp);
+////////////////////		
 			return TRUE;
 		}
 	}
@@ -139,14 +261,21 @@ class Pending_model extends CI_Model {
 	public function shutdownPending()
 	{
 		$this->db->trans_start();
+		$logstr = '';
 		$query = $this->db->get('pending_buy_table');
 		foreach ($query->result_array() as $row) {
 			$this->db->insert('withdraw_request_table',$row);
+			$logstr = $logstr."Time: ".date("M-d-Y h:i:s",mktime()).
+					" State: ".'SHUTDOWN'.					
+					" Info: ".json_encode($row)."\n";
 		}
 		$this->db->empty_table('pending_buy_table'); 
 		$query = $this->db->get('pending_sell_table');
 		foreach ($query->result_array() as $row) {
 			$this->db->insert('withdraw_request_table',$row);
+			$logstr =  $logstr."state: ".'SHUTDOWN'.
+				          " time: ".mktime().
+				          " info: ".json_encode($row)."\n";
 		}
 		$this->db->empty_table('pending_sell_table'); 
 		$this->db->trans_complete();
@@ -154,6 +283,16 @@ class Pending_model extends CI_Model {
 		if($this->db->trans_status() === FALSE) {
 			return FALSE;
 		} else {
+			$filename = dirname(__FILE__) . "/../logs/" . date("YMD") . ".log";	    	
+			
+			$fp = fopen($filename, "a+");
+			if (!$fp)
+			{
+				return "无法打开日志文件";
+			}
+			fwrite($fp, $logstr);
+		        fclose($fp);
+			
 			return TRUE;
 		}
 	}
@@ -163,11 +302,6 @@ class Pending_model extends CI_Model {
 	 * @return 在待处理买指令列表对交易价格排序后的查询结果*/
 	public function sortcommbuyprice($stockID, $order)
 	{
-		// if($order == 0)
-		// 	$query = mysql_query("SELECT * FROM pending_buy_table WHERE StockID = $stockID ORDER BY CommissionPrice");
-	 //    else
-		// 	$query = mysql_query("SELECT * FROM pending_buy_table WHERE StockID = $stockID ORDER BY CommissionPrice DESC");	
-		// return json_encode($query);
 		$sql = "select *  from pending_buy_table where StockID = ? order by CommissionPrice";
 		if($order == 1){
 			$sql = $sql." desc";
@@ -182,12 +316,6 @@ class Pending_model extends CI_Model {
 	 * @return 在待处理卖指令列表对交易价格排序后的查询结果*/
 	public function sortcommsellprice($stockID, $order)
 	{
-		// if($order == 0)
-		// 	$query = mysql_query("SELECT * FROM pending_sell_table WHERE StockID = $stockID ORDER BY CommissionPrice");
-	 //    else
-		// 	$query = mysql_query("SELECT * FROM pending_sell_table WHERE StockID = $stockID ORDER BY CommissionPrice DESC");	
-		// return json_encode($query);
-
 		$sql = "select *  from pending_sell_table where StockID = ? order by CommissionPrice";
 		if($order == 1){
 			$sql = $sql." desc";
@@ -196,7 +324,20 @@ class Pending_model extends CI_Model {
 		return $res->result_array();
 	}
 
+	/*@author KHC @version 1.0
+	 * @parameter $commissionID:待查找交易号
+	 * @return 查询结果*/
+	public function getRecord($commissionID)
+	{
+		if($this->get_type($commissionID) == 0)
+			$database = 'pending_buy_table';
+		else
+			$database = 'pending_sell_table';
+		
+		$query = $this->db->get_where($database, array('CommissionID' => $commissionID));
 
+		return $query->result_array();
+	}
 }
 
 ?>

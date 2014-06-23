@@ -1,5 +1,4 @@
 ﻿<?php
-		ob_start();
 /*
  * TradeMatch控制器，用来处理带匹配指令，将结果告知成功交易模型
  * @author zlq
@@ -43,7 +42,10 @@ class TradeMatch extends CI_Controller {
 	 *  version 1.1
 	 */
 	 $data['yest'] = $this->yesterday_end_price;
-		$this->load->view('tradeview_yesterday', $data);
+	 $string = $this->load->view('tradeview_yesterday', $data, true);
+	 echo $string;
+	 ob_flush();
+	 flush();
 	}
 	
 	/*
@@ -217,7 +219,7 @@ class TradeMatch extends CI_Controller {
 				$this->up->updateacc($this->pair['debug'][$iter]['sellzj'],
 								 $this->pair['debug'][$iter]['buyzj'],
 								 $this->pair['debug'][$iter]['sellzq'],
-								 $this->pair['debug'][$iter]['buyzj'],
+								 $this->pair['debug'][$iter]['buyzq'],
 								 $this->m_cnt, 
 								 (string)$this->pair['debug'][$iter]['StockID'],
 								 date('Y-m-d H:i:s', time()),
@@ -227,15 +229,21 @@ class TradeMatch extends CI_Controller {
 								 $this->pair['debug'][$iter]['seller'],
 								 $this->pair['debug'][$iter]['buyer'],
 								 $this->pair['debug'][$iter]['isall']>>1,
-								 $this->pair['debug'][$iter]['isall']%2 
+								 $this->pair['debug'][$iter]['isall']%2,
+								 $this->pair['debug'][$iter]['sellprice'],
+								 $this->pair['debug'][$iter]['buyprice'],
+								 $this->pair['debug'][$iter]['selltime'],
+								 $this->pair['debug'][$iter]['buytime'],
+								 $this->pair['debug'][$iter]['sellremain'],
+								 $this->pair['debug'][$iter]['buyremain']
 								 );
 			}
 		}	
 /*		$this->load->model('log_model', 'log');
 		$this->log->data = $this->m_log;
 		var_dump($this->m_log);
-*/
-		return (0 == $this->m_cnt);
+*/		//echo "mcnt::".$this->m_cnt;
+		return (0 != $this->m_cnt);
 	}
 	
 	/*
@@ -337,6 +345,12 @@ class TradeMatch extends CI_Controller {
 			$this->pair['debug'][$iter]['buyzj'] = $this->pair['buy'][$iterb]['StockAccountID'];
 			$this->pair['debug'][$iter]['buyzq'] = $this->pair['buy'][$iterb]['StockHolderID'];
 			$this->pair['debug'][$iter]['currency'] = $this->pair['buy'][$iterb]['Currency'];
+			$this->pair['debug'][$iter]['sellprice'] = $this->pair['sell'][$iters]['CommissionPrice'];
+			$this->pair['debug'][$iter]['buyprice'] = $this->pair['buy'][$iterb]['CommissionPrice'];
+			$this->pair['debug'][$iter]['selltime'] = $this->pair['sell'][$iters]['CommissionTime'];
+			$this->pair['debug'][$iter]['buytime'] = $this->pair['buy'][$iterb]['CommissionTime'];
+			$this->pair['debug'][$iter]['sellremain'] = $this->pair['sell'][$iters]['CommissionAmount'] - $amount;
+			$this->pair['debug'][$iter]['buyremain'] = $this->pair['buy'][$iterb]['CommissionAmount'] - $amount;
 			/*
 			|  Step6 修改数据库
 			|      ???计算单方价格
@@ -364,13 +378,17 @@ class TradeMatch extends CI_Controller {
 			 */
 			$data['time'] = date("Y-m-d h:i:s");
 			$data['debug'] = $this->pair['debug'][$iter];
-			$this->load->view("tradeview_matchresult", $data);
+			$data['sell'] = $this->pair['sell'][$iters];
+			$data['buy'] = $this->pair['buy'][$iterb];
+			$string = $this->load->view("tradeview_matchresult", $data, true);
+			echo $string;
+			ob_flush();
+			flush();
 		}
 
 		//echo '</br>OUTPUT:        ';
 	//	var_export($this->pair['debug']);
 		//echo '</br>';
-		
 		return $this->_exit();
 	}
 	
@@ -383,8 +401,10 @@ class TradeMatch extends CI_Controller {
 //  TODO::一直运行？？？
 //  TODO::flush输出可以动态观看？？？
 		while (1) {
-			while ($this->match());
-			sleep(10);
+			while ($this->match()) {
+			// can debug
+			}
+			sleep(3);
 		}
 	}
 	
@@ -396,6 +416,6 @@ class TradeMatch extends CI_Controller {
 		$this->load->model('Centerupdate', 'up');
 		$this->up->trans_data_history();
 	}
+
 };
-ob_end_flush();
 ?>
